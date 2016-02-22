@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+
+var program = require('commander')
+var yaml = require('js-yaml')
+var path = require('path')
+var fs = require('fs')
+
+program
+  .option('-f, --from [from]', 'Base version file for sync')
+  .option('-t, --to [to]', 'Version file to synchronize')
+  .option('-q, --quiet', 'Disable informative output')
+  .parse(process.argv)
+
+var echo = function (message) {
+  if (!program.quiet) console.log(message)
+}
+
+if (!program.from) throw new Error('No file specified for --from. Aborting.')
+if (!program.to) throw new Error('No file specified for --to. Aborting.')
+
+try {
+  var fromFile = fs.readFileSync(program.from, 'utf8')
+} catch (err) {
+  throw new Error(`Could not find ‘${program.from}’ file (--from). Aborting.`)
+}
+
+try {
+  var toFile = fs.readFileSync(program.to, 'utf8')
+} catch (err) {
+  fs.openSync(program.to, 'w')
+  toFile = ''
+  echo(`Could not find ‘${program.to}’ file (--to). Created it.`)
+}
+
+try {
+  var fromDictionary = yaml.safeLoad(fromFile, { json: true })
+} catch (err) {
+  throw new Error('Could not parse ‘${program.from}’ file (--from). Aborting.')
+}
+
+try {
+  var toDictionary = yaml.safeLoad(toFile, { json: true })
+} catch (err) {
+  throw new Error('Could not parse ‘${program.to}’ file (--to). Aborting.')
+}
+
+var newDictionary = Object.assign({}, fromDictionary, toDictionary)
+var newContent = (path.extname(program.to) === '.json')
+  ? JSON.stringify(newDictionary, null, 2)
+  : yaml.safeDump(newDictionary)
+
+fs.writeFile(program.to, newContent, 'utf8', function () {
+  echo(`Version ‘${program.to}’ correctly synchronized with base version ‘${program.from}’.`)
+})
