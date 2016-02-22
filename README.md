@@ -1,6 +1,6 @@
 # Transync
 
-Transync is a npm module to synchronise translation files. The idea is to make sure a locale file has the same translation keys than a base file. It supports both JSON and YAML files.
+Transync is a npm module to synchronise translation files. The idea is to make sure a locale file has the same translation keys as a base file. It supports both JSON and YAML files.
 
 ```sh
 npm install transync --save
