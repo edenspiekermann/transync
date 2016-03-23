@@ -49,7 +49,7 @@ try {
 var newDictionary = Object.assign({}, fromDictionary, toDictionary)
 var newContent = (path.extname(program.to) === '.json')
   ? JSON.stringify(newDictionary, null, codingStyle.indent_style === 'tab' ? "\t" : codingStyle.indent_size)
-  : yaml.safeDump(newDictionary)
+  : yaml.safeDump(newDictionary, { indent : codingStyle.indent_size })
 
 if(codingStyle.insert_final_newline) {
 	newContent += "\n";
