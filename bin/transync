@@ -41,13 +41,14 @@ try {
 }
 
 try {
-  var toDictionary = yaml.safeLoad(toFile, { json: true })
+  var toDictionary = toFile === '' ? {} : yaml.safeLoad(toFile, { json: true })
 } catch (err) {
   throw new Error('Could not parse ‘${program.to}’ file (--to). Aborting.')
 }
 
 var JSONindentation = codingStyle.indent_style === 'tab' ? '\t' : codingStyle.indent_size
-var newDictionary = Object.assign({}, fromDictionary, toDictionary)
+var newDictionary = syncDictionaries(fromDictionary, toDictionary)
+
 var newContent = (path.extname(program.to) === '.json')
   ? JSON.stringify(newDictionary, null, JSONindentation)
   : yaml.safeDump(newDictionary, { indent : codingStyle.indent_size })
@@ -59,3 +60,21 @@ if (codingStyle.insert_final_newline) {
 fs.writeFile(program.to, newContent, 'utf8', function () {
   echo(`Version ‘${program.to}’ correctly synchronized with base version ‘${program.from}’.`)
 })
+
+/**
+ * sync translation dictionaries from `from` to `to`.
+ *
+ * this supports nested dictionaries and will remove keys
+ * from the to dictionary that is not in the from dictionary.
+ */
+function syncDictionaries(from, to) {
+  var output = {}
+  for(var key of Object.keys(from)) {
+    if(typeof(from[key]) === 'object') {
+      output[key] = syncDictionaries(from[key], to[key] === undefined ? {} : to[key])
+    } else {
+      output[key] = to[key] === undefined ? from[key] : to[key]
+    }
+  }
+  return output
+}

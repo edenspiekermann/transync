@@ -1,0 +1,14 @@
+{
+  "animals": {
+    "ant": "Ameise",
+    "bat": "Fledermaus",
+    "cat": "Katze"
+  },
+  "colors": {
+    "white": "weiß",
+    "black": "schwarz",
+    "yellow": "gelb",
+    "pink": "pink"
+  },
+  "winner": "Sieger"
+}
