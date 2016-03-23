@@ -48,7 +48,6 @@ try {
 
 var JSONindentation = codingStyle.indent_style === 'tab' ? '\t' : codingStyle.indent_size
 var newDictionary = syncDictionaries(fromDictionary, toDictionary)
-
 var newContent = (path.extname(program.to) === '.json')
   ? JSON.stringify(newDictionary, null, JSONindentation)
   : yaml.safeDump(newDictionary, { indent : codingStyle.indent_size })
