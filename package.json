@@ -1,6 +1,6 @@
 {
   "name": "transync",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A module to synchronise translation files.",
   "bin": "bin/transync",
   "homepage": "https://github.com/edenspiekermann/transync",
