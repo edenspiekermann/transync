@@ -46,13 +46,14 @@ try {
   throw new Error('Could not parse ‘${program.to}’ file (--to). Aborting.')
 }
 
+var JSONindentation = codingStyle.indent_style === 'tab' ? '\t' : codingStyle.indent_size
 var newDictionary = Object.assign({}, fromDictionary, toDictionary)
 var newContent = (path.extname(program.to) === '.json')
-  ? JSON.stringify(newDictionary, null, codingStyle.indent_style === 'tab' ? "\t" : codingStyle.indent_size)
+  ? JSON.stringify(newDictionary, null, JSONindentation)
   : yaml.safeDump(newDictionary, { indent : codingStyle.indent_size })
 
-if(codingStyle.insert_final_newline) {
-	newContent += "\n";
+if (codingStyle.insert_final_newline) {
+  newContent += '\n';
 }
 
 fs.writeFile(program.to, newContent, 'utf8', function () {
