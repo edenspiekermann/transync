@@ -15,14 +15,12 @@
     "sync"
   ],
   "scripts": {
-    "pretest": "rm -f tests/de.yml",
     "test": "mocha tests"
   },
   "dependencies": {
     "commander": "^2.9.0",
     "editorconfig": "^0.13.2",
-    "js-yaml": "^3.5.3",
-    "object-assign-deep": "0.0.4"
+    "js-yaml": "^3.5.3"
   },
   "devDependencies": {
     "mocha": "^2.4.5"
