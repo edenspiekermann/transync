@@ -53,7 +53,7 @@ var newContent = (path.extname(program.to) === '.json')
   : yaml.safeDump(newDictionary, { indent : codingStyle.indent_size })
 
 if (codingStyle.insert_final_newline) {
-  newContent += '\n';
+  newContent += '\n'
 }
 
 fs.writeFile(program.to, newContent, 'utf8', function () {
