@@ -15,7 +15,6 @@
     "sync"
   ],
   "scripts": {
-    "pretest": "rm -f tests/de.yml",
     "test": "mocha tests"
   },
   "dependencies": {

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
+var editorconfig = require('editorconfig')
 var program = require('commander')
 var yaml = require('js-yaml')
 var path = require('path')
 var fs = require('fs')
-var editorconfig = require('editorconfig')
 
 program
   .option('-f, --from [from]', 'Base version file for sync')
@@ -14,6 +14,19 @@ program
 
 var echo = function (message) {
   if (!program.quiet) console.log(message)
+}
+
+var sync = function (from, to) {
+  var result = {}
+  to = to || {}
+
+  for (var key in from) {
+    result[key] = typeof from[key] === 'object'
+      ? sync(from[key], to[key] || {})
+      : to[key] || from[key]
+  }
+
+  return result
 }
 
 if (!program.from) throw new Error('No file specified for --from. Aborting.')
@@ -47,7 +60,7 @@ try {
 }
 
 var JSONindentation = codingStyle.indent_style === 'tab' ? '\t' : codingStyle.indent_size
-var newDictionary = Object.assign({}, fromDictionary, toDictionary)
+var newDictionary = sync(fromDictionary, toDictionary)
 var newContent = (path.extname(program.to) === '.json')
   ? JSON.stringify(newDictionary, null, JSONindentation)
   : yaml.safeDump(newDictionary, { indent : codingStyle.indent_size })
