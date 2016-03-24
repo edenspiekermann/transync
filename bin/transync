@@ -5,6 +5,7 @@ var yaml = require('js-yaml')
 var path = require('path')
 var fs = require('fs')
 var editorconfig = require('editorconfig')
+var assign = require('object-assign-deep')
 
 program
   .option('-f, --from [from]', 'Base version file for sync')
@@ -47,7 +48,7 @@ try {
 }
 
 var JSONindentation = codingStyle.indent_style === 'tab' ? '\t' : codingStyle.indent_size
-var newDictionary = Object.assign({}, fromDictionary, toDictionary)
+var newDictionary = assign({}, fromDictionary, toDictionary)
 var newContent = (path.extname(program.to) === '.json')
   ? JSON.stringify(newDictionary, null, JSONindentation)
   : yaml.safeDump(newDictionary, { indent : codingStyle.indent_size })
