@@ -12,9 +12,23 @@ describe('The transync script', function () {
     }, Error);
   });
 
-  it('should have the same keys in synced file', function () {
+  it('should have the same keys in synced YAML file', function () {
+    exec('./bin/transync --from tests/en.yml --to tests/de.yml');
+
     var enContent = fs.readFileSync('tests/en.yml', 'utf8');
     var deContent = fs.readFileSync('tests/de.yml', 'utf8');
+    var enKeys = Object.keys(yaml.safeLoad(enContent));
+    var deKeys = Object.keys(yaml.safeLoad(deContent));
+
+    assert.equal(enKeys.length, deKeys.length);
+    assert.deepEqual(enKeys, deKeys);
+  });
+
+  it('should have the same keys in synced JSON file', function () {
+    exec('./bin/transync --from tests/en.json --to tests/de.json');
+
+    var enContent = fs.readFileSync('tests/en.json', 'utf8');
+    var deContent = fs.readFileSync('tests/de.json', 'utf8');
     var enKeys = Object.keys(yaml.safeLoad(enContent, { json: true }));
     var deKeys = Object.keys(yaml.safeLoad(deContent, { json: true }));
 
@@ -25,15 +39,30 @@ describe('The transync script', function () {
   it('should not override existing keys', function () {
     var deContent = fs.readFileSync('tests/de.yml', 'utf8');
     deContent = yaml.safeLoad(deContent, { json: true });
-    deContent.foo = 42;
+    deContent.winner = 'foobar';
     deContent = yaml.safeDump(deContent);
     fs.writeFileSync('tests/de.yml', deContent, 'utf8');
 
     exec('./bin/transync --from tests/en.yml --to tests/de.yml');
 
     deContent = fs.readFileSync('tests/de.yml', 'utf8');
-    var deObj = yaml.safeLoad(deContent, { json: true });
+    var deObj = yaml.safeLoad(deContent);
 
-    assert.equal(deObj.foo, 42);
+    assert.equal(deObj.winner, 'foobar');
+  });
+
+  it('should deep extend', function () {
+    var deContent = fs.readFileSync('tests/de.yml', 'utf8');
+    deContent = yaml.safeLoad(deContent);
+    delete deContent.colors.white;
+    deContent = yaml.safeDump(deContent);
+    fs.writeFileSync('tests/de.yml', deContent, 'utf8');
+
+    exec('./bin/transync --from tests/en.yml --to tests/de.yml');
+
+    deContent = fs.readFileSync('tests/de.yml', 'utf8');
+    var deObj = yaml.safeLoad(deContent);
+
+    assert.equal(deObj.colors.white, 'white');
   });
 });

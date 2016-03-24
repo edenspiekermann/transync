@@ -1,3 +1,10 @@
-foo: 42
-baz:
-  qux: foo
+animals:
+  ant: ant
+  bat: bat
+  cat: caaat
+colors:
+  white: white
+  black: black
+  yellow: yellow
+  pink: pink
+winner: foobar
