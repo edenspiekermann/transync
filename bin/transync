@@ -1,10 +1,7 @@
 #!/usr/bin/env node
 
-var editorconfig = require('editorconfig')
 var program = require('commander')
-var yaml = require('js-yaml')
-var path = require('path')
-var fs = require('fs')
+var transync = require('../src')
 
 program
   .option('-f, --from [from]', 'Base version file for sync')
@@ -12,63 +9,4 @@ program
   .option('-q, --quiet', 'Disable informative output')
   .parse(process.argv)
 
-var echo = function (message) {
-  if (!program.quiet) console.log(message)
-}
-
-var sync = function (from, to) {
-  var result = {}
-  to = to || {}
-
-  for (var key in from) {
-    result[key] = typeof from[key] === 'object'
-      ? sync(from[key], to[key] || {})
-      : to[key] || from[key]
-  }
-
-  return result
-}
-
-if (!program.from) throw new Error('No file specified for --from. Aborting.')
-if (!program.to) throw new Error('No file specified for --to. Aborting.')
-
-try {
-  var fromFile = fs.readFileSync(program.from, 'utf8')
-  var codingStyle = editorconfig.parseSync(program.from)
-} catch (err) {
-  throw new Error(`Could not find ‘${program.from}’ file (--from). Aborting.`)
-}
-
-try {
-  var toFile = fs.readFileSync(program.to, 'utf8')
-} catch (err) {
-  fs.openSync(program.to, 'w')
-  toFile = ''
-  echo(`Could not find ‘${program.to}’ file (--to). Created it.`)
-}
-
-try {
-  var fromDictionary = yaml.safeLoad(fromFile, { json: true })
-} catch (err) {
-  throw new Error('Could not parse ‘${program.from}’ file (--from). Aborting.')
-}
-
-try {
-  var toDictionary = yaml.safeLoad(toFile, { json: true })
-} catch (err) {
-  throw new Error('Could not parse ‘${program.to}’ file (--to). Aborting.')
-}
-
-var JSONindentation = codingStyle.indent_style === 'tab' ? '\t' : codingStyle.indent_size
-var newDictionary = sync(fromDictionary, toDictionary)
-var newContent = (path.extname(program.to) === '.json')
-  ? JSON.stringify(newDictionary, null, JSONindentation)
-  : yaml.safeDump(newDictionary, { indent : codingStyle.indent_size })
-
-if (codingStyle.insert_final_newline) {
-  newContent += '\n'
-}
-
-fs.writeFile(program.to, newContent, 'utf8', function () {
-  echo(`Version ‘${program.to}’ correctly synchronized with base version ‘${program.from}’.`)
-})
+transync(program)
