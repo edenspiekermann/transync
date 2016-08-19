@@ -5,7 +5,6 @@ var exec = require('child_process').execSync;
 var consolelog = console.log;
 var consoleLogOutput = '';
 console.log = function () {
-  // consolelog(arguments)
   consoleLogOutput += Array.prototype.slice.call(arguments).map(function (arg) { return arg.toString(); });
   consolelog.apply(null, arguments);
 };
@@ -87,8 +86,6 @@ describe('The Node API', function () {
     }));
     transync({ from: 'tests/en.json', to: 'tests/de.json', veryverbose: true });
     assert.deepEqual(readTestFile('en.json'), readTestFile('de.json'));
-    // consoleOutput should have 3 'missing translations' in it.
-    // console.log('consoleLogOutput: ', consoleLogOutput)
     assert.notEqual(consoleLogOutput.match(/Missing translation transynced/gim), null);
     assert.equal(consoleLogOutput.match(/Missing translation transynced/gim).length, 9);
   });
