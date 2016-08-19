@@ -4,6 +4,7 @@ var path = require('path');
 var fs = require('fs');
 
 var quiet;
+var veryverbose;
 
 var echo = function (message) {
   if (!quiet) console.log(message);
@@ -17,6 +18,7 @@ var sync = function (from, to) {
     result[key] = typeof from[key] === 'object'
       ? sync(from[key], to[key] || {})
       : to[key] || from[key];
+    if (to[key] === undefined && veryverbose) echo(`   [32m ✓[0m[90m Missing translation transynced -> ${key} : ${from[key]} [0m`);
   }
 
   return result;
@@ -26,6 +28,7 @@ function transync (options, callback) {
   var from = options.from;
   var to = options.to;
   quiet = options.quiet;
+  veryverbose = options.veryverbose;
 
   if (!from) throw new Error('No source file specified. Aborting.');
   if (!to) throw new Error('No destination file specified. Aborting.');

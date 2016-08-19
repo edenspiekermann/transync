@@ -1,6 +1,15 @@
 var fs = require('fs');
 var assert = require('assert');
 var exec = require('child_process').execSync;
+
+var consolelog = console.log;
+var consoleLogOutput = '';
+console.log = function () {
+  // consolelog(arguments)
+  consoleLogOutput += Array.prototype.slice.call(arguments).map(function (arg) { return arg.toString(); });
+  consolelog.apply(null, arguments);
+};
+
 var transync = require('../src');
 var yaml = require('js-yaml');
 var path = require('path');
@@ -9,7 +18,7 @@ function createTestFile (name, content) {
   content = path.extname(name) === '.json'
     ? JSON.stringify(content, null, 2)
     : yaml.safeDump(content);
-  
+
   fs.writeFileSync('./tests/' + name, content, 'utf8');
 }
 
@@ -70,5 +79,17 @@ describe('The Node API', function () {
     createTestFile('de.json', de);
     transync({ from: 'tests/en.json', to: 'tests/de.json' });
     assert.equal(readTestFile('de.json').languages.french, 'native');
+  });
+
+  it('should have outputted missing translation key information above ^', function () {
+    createTestFile('en.json', Object.assign({}, dummyData, {
+      languages: { english: 'fluent', french: 'fluent', german: 'mal slecht', bash: 'ok', powershell: 'worst' }
+    }));
+    transync({ from: 'tests/en.json', to: 'tests/de.json', veryverbose: true });
+    assert.deepEqual(readTestFile('en.json'), readTestFile('de.json'));
+    // consoleOutput should have 3 'missing translations' in it.
+    // console.log('consoleLogOutput: ', consoleLogOutput)
+    assert.notEqual(consoleLogOutput.match(/Missing translation transynced/gim), null);
+    assert.equal(consoleLogOutput.match(/Missing translation transynced/gim).length, 9);
   });
 });
