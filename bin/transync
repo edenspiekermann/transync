@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
-var program = require('commander')
-var transync = require('../src')
+var program = require('commander');
+var transync = require('../src');
 
 program
   .option('-f, --from [from]', 'Base version file for sync')
   .option('-t, --to [to]', 'Version file to synchronize')
   .option('-q, --quiet', 'Disable informative output')
-  .parse(process.argv)
+  .option('-vv, --veryverbose', 'Enable very informative output')
+  .parse(process.argv);
 
-transync(program)
+transync(program);
